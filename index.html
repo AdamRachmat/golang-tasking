@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRUD</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .form-group {
+        padding-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" style="padding-top: 100px">
+        <div class="col-sm-3"style="margin-left: 20%; background-color: rgb(224, 235, 235); padding-bottom:5%">
+            <form>
+                <div class="form-row" style="">
+                  <div class="form-group">
+                    <label for="inputEmail4">ID</label>
+                    <input name="id" type="text" class="form-control" id="idPost" placeholder="">
+                  </div>
+                  <div class="form-group">
+                    <label for="inputPassword4">Name</label>
+                    <input name="namePost" type="text" class="form-control" id="namePost" placeholder="Nama">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="inputAddress">Pic</label>
+                  <input name="picPost" type="text" class="form-control" id="picPost" placeholder="PIC">
+                </div>
+                <div class="form-group">
+                  <label for="inputAddress2">Deadline</label>
+                  <input name="deadlinePost" type="date" class="form-control" id="deadlinePost" placeholder="Deadline">
+                </div>
+                <div class="form-group">
+                    <label for="inputAddress2">Status</label>
+                    <select name="statusPost" class="form-control" id="statusPost" placeholder="">
+                    <option selected>Pilih Status</option>
+                    <option value="0">Belum dikerjakan</option>
+                    <option value="1">Sudah dikerjakan</option>
+                  </select>
+                  </div>
+                <button type="submit" class="btn btn-primary" style="background-color: rgb(10, 39, 39);" onClick="upsertTask()">INPUT</button>
+              </form>
+              </div>
+              <div class="col-sm-3" style="margin-left: 3%;">
+              <table class="table">
+                <thead class="thead-dark" style="background-color:rgb(224, 235, 235)">
+                  <tr style="color: black;">
+                    <th scope="col">id</th>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Pic</th>
+                    <th scope="col">Deadline</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks">
+                  
+                </tbody>
+              </table>
+
+              </div>
+        </div>
+      </div>
+    </div>
+    <div class="container"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+      $.get("http://localhost:8000/tasks", function (data, status) {
+        for (let i = 0; i < data.items.length; i++) {
+          const status = getStatus(data.items[i].status);
+          $("#tasks").append(
+            `<tr><th scope="row">${data.items[i].id}</th><td>${data.items[i].name}</td><td>${data.items[i].pic}</td><td>${data.items[i].deadline}</td><td>${status}</td><td><a href="" " onClick="deleteTask(${data.items[i].id})"><p>delete</p></a> <a href="#" onClick="editTask(${data.items[i].id}, '${data.items[i].name}', '${data.items[i].pic}', '${data.items[i].deadline}', ${data.items[i].status})"><p>edit</p></a></td></tr>`
+          );
+        }
+      });
+      function getStatus(status) {
+        if (status == 0) return "Belum dikerjakan";
+        if (status == 1) return "Sudah dikerjakan";
+        return "Done";
+      }
+      function upsertTask() {
+        const url = $("#idPost").val()
+          ? "http://localhost:8000/tasks/edit"
+          : "http://localhost:8000/tasks";
+        const data = {
+          id: $("#idPost").val(),
+          name: $("#namePost").val(),
+          pic: $("#picPost").val(),
+          Deadline: $("#deadlinePost").val(),
+          status: $("#statusPost option:selected").val(),
+        };
+        $.ajax({
+          type: "POST",
+          url,
+          data,
+        });
+      }
+
+      function editTask(id, name, pic, deadline, status) {
+        $("#idPost").val(id);
+        $("#namePost").val(name);
+        $("#picPost").val(pic);
+        $("#deadlinePost").val(deadline);
+        $("#statusPost").val(status).change();
+      }
+
+      function deleteTask(id) {
+        $.ajax({
+          type: "GET",
+          url: `http://localhost:8000/tasks/${id}/delete`,
+        });
+      }
+    </script>
+  </body>
+</html>
